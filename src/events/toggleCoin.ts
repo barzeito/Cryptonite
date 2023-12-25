@@ -19,11 +19,12 @@ export function addCoinToArray(e: MouseEvent) {
 
             //Get the coins symbol and add it to sessionStorage.
             const spanText = span.textContent;
-            console.log(`Coin symbol is ${spanText}`);
             saveData(spanText);
 
           } else {
             selectedCoins.push(coinId);
+            const spanText = span.textContent;
+            saveData(spanText);
             showNotification(`Coin ${coinId} added.`);
             showToggleLimit();
           }
@@ -33,6 +34,8 @@ export function addCoinToArray(e: MouseEvent) {
             (selectedCoin) => selectedCoin === coinId
           );
           selectedCoins.splice(index, 1);
+          const spanText = span.textContent;
+          removeData(spanText)
           console.log('Removed',coinId,'from the array.');
           showNotification(`Coin ${coinId} removed.`);
         }
@@ -86,7 +89,7 @@ export function addCoinToArray(e: MouseEvent) {
       const element = e.target as HTMLElement;
       const closeBtn = element.closest(".close-btn");
       if (closeBtn && selectedCoins.length > 5) {
-        alert("Please remove at lease 1 coin to continue.");
+        alert("Please remove at least 1 coin to continue.");
         return;
       }
         if (closeBtn) {
@@ -103,11 +106,14 @@ export function addCoinToArrayToggle(e: MouseEvent) {
       if (element.id.startsWith("pop-checked-")) {
         const coinId = element.id.substring("pop-checked-".length);
         console.log('Clicked on',coinId);
+        const span = document.querySelector(`#span-${coinId}`) as HTMLSpanElement;
         const checkbox = document.querySelector(`#pop-checked-${coinId}`) as HTMLInputElement;
         if (checkbox) {
           if (checkbox.checked) {
             // Add the coin to the array
             selectedCoins.push(coinId);
+            const spanText = span.textContent;
+            saveData(spanText);
             console.log('Added',coinId,'to the array.');
             showNotification(`Coin ${coinId} added.`);
             (document.querySelector(`#checked-${coinId}`) as HTMLInputElement).checked = true;
@@ -117,6 +123,8 @@ export function addCoinToArrayToggle(e: MouseEvent) {
               (selectedCoin) => selectedCoin === coinId
             );
             selectedCoins.splice(index, 1);
+            const spanText = span.textContent;
+            removeData(spanText);
             console.log('Removed',coinId,'from the array.');
             showNotification(`Coin ${coinId} removed.`);
             (document.querySelector(`#checked-${coinId}`) as HTMLInputElement).checked = false;
@@ -139,17 +147,28 @@ export function showNotification(message) {
     }, 2000);
   }
 
+  // Save/Remove data to seassion storage to show it in the chart.
 function saveData(spanText: string) {
-    // Retrieve existing data from sessionStorage
     const savedDataString = sessionStorage.getItem('selectedCoins');
-    // Parse the existing data or initialize an empty array
     const savedData: string[] = savedDataString
       ? JSON.parse(savedDataString)
       : [];
-    // Add the new spanText to the array
     savedData.push(spanText);
-  
-    // Convert the array to a string and save it in sessionStorage
     const savedDataStringUpdated = JSON.stringify(savedData);
     sessionStorage.setItem('selectedCoins', savedDataStringUpdated);
+  }
+
+  function removeData(spanText: string) {
+    const savedDataString = sessionStorage.getItem('selectedCoins');
+    if (!savedDataString) {
+      console.log('No data to remove')
+      return;
+    }
+    const savedData: string[] = JSON.parse(savedDataString);
+      const index = savedData.indexOf(spanText);
+      if (index !== -1) {
+      savedData.splice(index, 1);
+      const savedDataStringUpdated = JSON.stringify(savedData);
+      sessionStorage.setItem('selectedCoins', savedDataStringUpdated);
+    }
   }

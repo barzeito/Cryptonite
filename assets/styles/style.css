@@ -279,9 +279,13 @@ ul {
   transition: 0.3s;
 }
 
-.error {
+.error , #fetch-error{
   font-size: 0.9rem;
   color: #ff3333;
+}
+
+#fetch-error{
+  text-align: center;
 }
 /* ====== More Info Popup Box ======*/
 .popup-box {

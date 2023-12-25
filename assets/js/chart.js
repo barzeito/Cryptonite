@@ -51,11 +51,15 @@ function fetchDataForCoin(coinSymbol) {
         try {
             const response = yield fetch(`https://min-api.cryptocompare.com/data/pricemulti?fsyms=${coinSymbol}&tsyms=USD`);
             const data = yield response.json();
-            if (!data || !data[coinSymbol] || !data[coinSymbol].USD) {
+            // console.log(`API Response for ${coinSymbol}:`, data);
+            const coinData = data[Object.keys(data)[0]];
+            // console.log(data[Object.keys(data)[0]])
+            // console.log(coinData)
+            if (!coinData || !coinData.USD === undefined || !coinData.USD === null) {
                 console.error(`No valid price data for ${coinSymbol}`);
                 return null;
             }
-            return { coin: coinSymbol, price: data[coinSymbol].USD };
+            return { coin: coinSymbol, price: coinData.USD };
         }
         catch (error) {
             console.error('Error fetching data for coin:', coinSymbol, error);
@@ -87,22 +91,6 @@ function updateChartData(chart, coins) {
         chart.update();
     });
 }
-// export async function setupAndUpdateChart() {
-//     const ctx = (document.getElementById('chartContainer') as HTMLCanvasElement).getContext('2d');
-//     if (!chartInstance) {
-//         chartInstance = createMultiAxisChart(ctx);
-//     }
-//     setInterval(async () => {
-//         let storedCoins = JSON.parse(sessionStorage.getItem('selectedCoins') || '[]') as { symbol: string, id: string }[];
-//         console.log('Stored Coins:', storedCoins);
-//         if (Array.isArray(storedCoins)) {
-//             let currentSelectedCoinSymbols = storedCoins.map(coin => coin.symbol?.toUpperCase());
-//             await updateChartData(chartInstance, currentSelectedCoinSymbols);
-//         } else {
-//             console.error('Stored coins is not an array:', storedCoins);
-//         }
-//     }, 20000);
-// }
 export function setupAndUpdateChart() {
     return __awaiter(this, void 0, void 0, function* () {
         const ctx = document.getElementById('chartContainer').getContext('2d');
@@ -113,17 +101,12 @@ export function setupAndUpdateChart() {
             let storedCoins = JSON.parse(sessionStorage.getItem('selectedCoins') || '[]');
             console.log('Stored Coins:', storedCoins);
             if (Array.isArray(storedCoins)) {
-                // Filter out items without corresponding spans
-                const coinsWithSpans = storedCoins.filter(coin => {
-                    const span = document.querySelector(`#span-${coin.id}`);
-                    return span !== null;
-                });
-                let currentSelectedCoinSymbols = coinsWithSpans.map(coin => { var _a; return (_a = coin.symbol) === null || _a === void 0 ? void 0 : _a.toUpperCase(); });
-                yield updateChartData(chartInstance, currentSelectedCoinSymbols);
+                console.log('Updating the chart with the coins:', storedCoins);
+                yield updateChartData(chartInstance, storedCoins);
             }
             else {
                 console.error('Stored coins is not an array:', storedCoins);
             }
-        }), 20000);
+        }), 2000);
     });
 }

@@ -19,7 +19,6 @@ function createMultiAxisChart(ctx: CanvasRenderingContext2D) {
         options: {
             responsive: true, 
             maintainAspectRatio: false, 
-
             scales: {
                 x: {
                     type: 'linear', 
@@ -47,11 +46,20 @@ async function fetchDataForCoin(coinSymbol: string): Promise<any> {
     try {
         const response = await fetch(`https://min-api.cryptocompare.com/data/pricemulti?fsyms=${coinSymbol}&tsyms=USD`);
         const data = await response.json();
-        if (!data || !data[coinSymbol] || !data[coinSymbol].USD) {
+        
+        // console.log(`API Response for ${coinSymbol}:`, data);
+
+        const coinData = data[Object.keys(data)[0]];
+        // console.log(data[Object.keys(data)[0]])
+        // console.log(coinData)
+        
+
+        if (!coinData || !coinData.USD === undefined || !coinData.USD === null) {
             console.error(`No valid price data for ${coinSymbol}`);
             return null;
         }
-        return { coin: coinSymbol, price: data[coinSymbol].USD };
+
+        return { coin: coinSymbol, price: coinData.USD };
     } catch (error) {
         console.error('Error fetching data for coin:', coinSymbol, error);
         return null;
@@ -81,24 +89,6 @@ async function updateChartData(chart: typeof Chart, coins: string[]) {
     chart.update();
 }
 
-// export async function setupAndUpdateChart() {
-//     const ctx = (document.getElementById('chartContainer') as HTMLCanvasElement).getContext('2d');
-//     if (!chartInstance) {
-//         chartInstance = createMultiAxisChart(ctx);
-//     }
-
-//     setInterval(async () => {
-//         let storedCoins = JSON.parse(sessionStorage.getItem('selectedCoins') || '[]') as { symbol: string, id: string }[];
-//         console.log('Stored Coins:', storedCoins);
-//         if (Array.isArray(storedCoins)) {
-//             let currentSelectedCoinSymbols = storedCoins.map(coin => coin.symbol?.toUpperCase());
-//             await updateChartData(chartInstance, currentSelectedCoinSymbols);
-//         } else {
-//             console.error('Stored coins is not an array:', storedCoins);
-//         }
-//     }, 20000);
-// }
-
 export async function setupAndUpdateChart() {
     const ctx = (document.getElementById('chartContainer') as HTMLCanvasElement).getContext('2d');
     if (!chartInstance) {
@@ -106,20 +96,14 @@ export async function setupAndUpdateChart() {
     }
 
     setInterval(async () => {
-        let storedCoins = JSON.parse(sessionStorage.getItem('selectedCoins') || '[]') as { symbol: string, id: string }[];
+        let storedCoins = JSON.parse(sessionStorage.getItem('selectedCoins') || '[]');
         console.log('Stored Coins:', storedCoins);
 
         if (Array.isArray(storedCoins)) {
-            // Filter out items without corresponding spans
-            const coinsWithSpans = storedCoins.filter(coin => {
-                const span = document.querySelector(`#span-${coin.id}`) as HTMLSpanElement;
-                return span !== null;
-            });
-
-            let currentSelectedCoinSymbols = coinsWithSpans.map(coin => coin.symbol?.toUpperCase());
-            await updateChartData(chartInstance, currentSelectedCoinSymbols);
+            console.log('Updating the chart with the coins:', storedCoins);
+            await updateChartData(chartInstance, storedCoins);
         } else {
             console.error('Stored coins is not an array:', storedCoins);
         }
-    }, 20000);
+    }, 2000);
 }

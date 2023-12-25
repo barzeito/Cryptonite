@@ -14,11 +14,20 @@ async function getAllCoins(): Promise<void> {
     if (loading) {
       loading.style.display = "block";
     }
-    //const getCoins = await fetchCoins('https://api.coingecko.com/api/v3/coins/list'); //Enable to use the API.
-    const getCoins = await fetchCoins("coins.json"); //Enable to use the json file.
+    // const apiUrl = 'https://api.coingecko.com/api/v3/coins/list';
+    // const getCoins = await fetchCoins(apiUrl); // Enable to use the API.
+    const getCoins = await fetchCoins("coins.json"); // Enable to use the json file.
+    if (!getCoins || getCoins.length === 0) {
+      console.log("No data received from the API.");
+      return; // Exit the function if there's no data.
+    }
     const coins = getCoins.slice(0, 100);
     const reducedCoins = reduceCoins(coins);
     displayCoins(reducedCoins);
+  } catch (error) {
+    console.error("Error fetching data:", error.message);
+    document.getElementById(`fetch-error`).innerHTML = `
+    Couldn't fetch the data from the API please try again later.`;
   } finally {
     const loading = document.getElementById("loading");
     if (loading) {
