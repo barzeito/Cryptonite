@@ -22,12 +22,12 @@ function getAllCoins() {
             if (loading) {
                 loading.style.display = "block";
             }
-            // const apiUrl = 'https://api.coingecko.com/api/v3/coins/list';
-            // const getCoins = await fetchCoins(apiUrl); // Enable to use the API.
-            const getCoins = yield fetchCoins("coins.json"); // Enable to use the json file.
+            const apiUrl = 'https://api.coingecko.com/api/v3/coins/list';
+            const getCoins = yield fetchCoins(apiUrl); // Enable to use the API.
+            // const getCoins = await fetchCoins("coins.json"); // Enable to use the json file.
             if (!getCoins || getCoins.length === 0) {
                 console.log("No data received from the API.");
-                return; // Exit the function if there's no data.
+                return;
             }
             const coins = getCoins.slice(0, 100);
             const reducedCoins = reduceCoins(coins);

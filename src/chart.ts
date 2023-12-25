@@ -105,5 +105,5 @@ export async function setupAndUpdateChart() {
         } else {
             console.error('Stored coins is not an array:', storedCoins);
         }
-    }, 2000);
+    }, 20000);
 }
